@@ -1,0 +1,382 @@
+<head>
+  <title>Press Coverage</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style type="text/css">
+    body {
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* chrome defaults? */
+    button {
+      letter-spacing: normal;
+      word-spacing: normal;
+      line-height: normal;
+      text-transform: none;
+      text-indent: 0px;
+      text-shadow: none;
+      display: inline-block;
+      text-align: center;
+      align-items: flex-start;
+      cursor: default;
+      box-sizing: border-box;
+      margin: 0em;
+      padding-block: 3px;
+      padding-inline: 6px;
+      border-width: 1px;
+      border-radius: 3px;
+      border-style: outset;
+      position: absolute;
+    }
+
+    /* button {
+      background-color: #008CFF;
+      color: white;
+      font-weight: bold;
+      font-family: Arial, Helvetica, sans-serif;
+      border-radius: 10px;
+      padding: 5px;
+      padding-left: 20px;
+      padding-right: 20px;
+    } */
+
+    button:hover {
+      box-shadow: 0px 0px 4px grey;
+      background-color: #f4f4f4;
+    }
+    
+    .buttonNoHover {
+      box-shadow: 0px 0px 0px grey !important;
+      background-color: #f0f0f0 !important;
+    }
+    .buttonHover {
+      box-shadow: 0px 0px 4px grey;
+      background-color: #f4f4f4;
+    }
+
+    .buttonActive {
+      background-color: grey;
+    }
+
+    .buttonLocked {
+      background-color: grey; 
+    }
+    .buttonLocked:hover {
+      box-shadow: 0px 0px 0px grey !important;
+      background-color: grey !important;
+    }
+
+    .venmoButton {
+      background-color: #008CFF;
+      color: white;
+      font-weight: bold;
+      font-family: Arial, Helvetica, sans-serif;
+      border-radius: 10px;
+      padding: 5px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .venmoButton:hover{
+      box-shadow: 0px 0px 4px grey;
+      background-color: #299fff;
+    }
+
+/* 
+    #mainButton {
+      position: absolute;
+    }
+    #mainButton:active {
+      outline: none;
+      box-shadow: none;
+    } */
+  </style>
+</head>
+<body>
+  <button id="mainButton">Click Me</button>
+  <script>
+    let clickNumber = 0
+    let secondaryClickNumber = 0
+    let BOUNDING_BOX = 20; // The invisible bounding box
+    let buttonToKeepInSwap = "mainButton"
+    
+    console.log("clickNumber: ", clickNumber)
+
+    function moveButtonToRandomPosition (button) {
+      button.style.top = Math.random() * (window.innerHeight - button.offsetHeight) + 'px';
+      button.style.left = Math.random() * (window.innerWidth - button.offsetWidth) + 'px';
+    }
+
+    function returnButtonToCenter(button) {
+      button.style.top = '';
+      button.style.left = '';
+    }
+
+    function rewriteButton(button, text) {
+      button.innerHTML = text
+    }
+
+    function copyButton(originalButton) {
+      // make new button
+      let newButton = document.createElement("button");
+
+      newButton.style['position'] = 'absolute'
+
+      // set initial inner text
+      newButton.innerHTML = originalButton.innerHTML;
+
+      // Return the new button
+      return newButton;
+    }
+
+    function addNewButton(mainButton) {
+      returnButtonToCenter(mainButton)
+      moveButtonLeft(mainButton, 50)
+      rewriteButton(mainButton, "see?")
+      newButton = copyButton(mainButton)
+      document.body.appendChild(newButton);
+      rewriteButton(newButton, "see?")
+      newButton.id = "newButton"
+      moveButtonLeft(newButton, -50)
+      return newButton
+    }
+
+    function addNewButtonBelow(mainButton, text, id, distanceBelow) {
+      newButton = copyButton(mainButton)
+      document.body.appendChild(newButton);
+      rewriteButton(newButton, text)
+      newButton.id = id
+      newButton = moveButtonUp(newButton, -distanceBelow)
+      return newButton
+    }
+
+    function moveButtonUp(button, distancepx) {
+      console.log(button, distancepx)
+      let currentTop = button.offsetTop;
+      let newTop = currentTop - distancepx;
+      console.log(currentTop, newTop)
+      button.style.top = newTop + 'px';
+      return button
+    }
+
+    function moveButtonLeft(button, distancepx) {
+      console.log(button, distancepx)
+      let currentLeft = button.offsetLeft;
+      let newLeft = currentLeft - distancepx;
+      console.log(currentLeft, newLeft)
+      button.style.left = newLeft + 'px';
+    }
+
+    function deleteButton(button) {
+      button.remove()
+    }
+
+
+    function runScript (button) {
+      console.log("clicked")
+      clickNumber++
+      if (clickNumber < 4) {
+        moveButtonToRandomPosition(this)
+        if (clickNumber === 1) {
+          rewriteButton(this, "nope")
+        } else if (clickNumber === 2) {
+          rewriteButton(this, "try again")
+        } else if (clickNumber === 3) {
+          rewriteButton(this, "one more time")
+        }
+      } else if (clickNumber === 4) {
+        returnButtonToCenter(this)
+        rewriteButton(this, "you're bad at this")
+      } else if (clickNumber === 5) {
+        console.log("at 5")
+        addNewButton(this)
+        let button1 = this
+        let button2 = document.getElementById('newButton')
+        console.log("adding listeners")
+
+
+        //stupid closure and event listener bullshit why do I need to name these thigns to remove them
+        function button1MouseOver () {
+          console.log("main button moused over")
+          button1.className = "buttonNoHover"
+          button2.className = "buttonHover"
+        }
+
+        function button1MouseOut () {
+          console.log("main button moused out")
+          button1.className = ""
+          button2.className = ""
+        }
+
+        function button1MouseDown () {
+          console.log("main button moused down")
+          buttonToKeepInSwap = "newButton"
+          button2.className = "buttonActive"
+        }
+
+        function button1MouseUp () {
+          console.log("main button moused down")
+          button2.className = ""
+        }
+
+        function button2MouseOver () {
+          console.log("secondary button boused over")
+          button2.className = "buttonNoHover"
+          button1.className = "buttonHover"
+        }
+
+        function button2MouseOut () {
+          console.log("secondary button moused out")
+          button2.className = ""
+          button1.className = ""
+        }
+
+        function button2MouseDown () {
+          console.log("main button moused down")
+          buttonToKeepInSwap = "mainButton"
+          button1.className = "buttonActive"
+        }
+
+        function button2MouseUp () {
+          console.log("main button moused down")
+          button1.className = ""
+        }
+
+
+        //assing these as named functions so we can remove them later
+        button1.addEventListener('mouseover', button1MouseOver)
+        button1.addEventListener('mouseout', button1MouseOut)
+        button1.addEventListener('mousedown', button1MouseDown)
+        button1.addEventListener('mouseup', button1MouseUp)
+        button2.addEventListener('mouseover', button2MouseOver)
+        button2.addEventListener('mouseout', button2MouseOut)
+        button2.addEventListener('mousedown', button2MouseDown)
+        button2.addEventListener('mouseup', button2MouseUp)
+       
+        button2.onclick = runScript
+        console.log("listeners added")
+      } else if (clickNumber === 10) {
+        console.log("got to 9")
+
+
+        //figure out which button to ditch based on whichever was not clicked last
+        if (buttonToKeepInSwap !== "mainButton") {
+          document.getElementById("mainButton").remove();
+          document.getElementById("newButton").id = "mainButton"
+        } else {
+          document.getElementById("newButton").remove();
+        }
+
+        rewriteButton(this, "lol")
+        let lastX = 0
+        let lastY = 0
+        let done = false
+        document.body.addEventListener("mousemove", function(e) {
+          if (!done) {
+            console.log("mouse moved");
+            //this is named leaf bc I stole the code from some place that used it for a leaf
+            //in general this could be better
+            var leaf = document.getElementById('mainButton');
+            var rect = leaf.getBoundingClientRect();
+
+            // If the leafX and leafY properties do not exist, initialize them
+            if (!leaf.leafX) leaf.leafX = rect.x;
+            if (!leaf.leafY) leaf.leafY = rect.y;
+
+            var x1 = rect.left - BOUNDING_BOX,
+                x2 = rect.left + rect.width + BOUNDING_BOX,
+                y1 = rect.top - BOUNDING_BOX,
+                y2 = rect.top + rect.height + BOUNDING_BOX;
+
+            if(e.pageX > x1 && e.pageX < x2 && e.pageY > y1 && e.pageY < y2) {
+                //figure out if the mouse is moving more vertically or horizontally
+                let horizontal = Math.abs(e.pageX-lastX) > Math.abs(e.pageY - lastY) ? true : false
+
+                if (horizontal) {
+                  if(e.pageX < leaf.leafX + rect.width / 2) {
+                      leaf.leafX = e.pageX + BOUNDING_BOX;
+                  } else {
+                      leaf.leafX = e.pageX - leaf.offsetWidth - BOUNDING_BOX;
+                  }
+                }
+
+                if (!horizontal) {
+                  if(e.pageY < leaf.leafY + rect.height / 2) {
+                      leaf.leafY = e.pageY + BOUNDING_BOX;
+                  } else {
+                      leaf.leafY = e.pageY - leaf.offsetHeight - BOUNDING_BOX;
+                  }
+                }
+            }
+
+            leaf.style.top = leaf.leafY + 'px';
+            leaf.style.left = leaf.leafX + 'px';
+            lastX = e.pageX
+            lastY = e.pageY
+            console.log(x1 < 0 || x2 > window.innerWidth || y1 < 0 || y2 > window.innerHeight)
+            if (x1 < 0 || x2 > window.innerWidth || y1 < 0 || y2 > window.innerHeight) {
+              button = document.getElementById("mainButton")
+              returnButtonToCenter(button)
+              done = true
+              rewriteButton(button, "Button Locked")
+              button.disabled = true
+              button.addEventListener("mouseout", () => {
+                if (!document.getElementById("newButton")) {
+                  
+                  let unlockButton = addNewButtonBelow(button, "Unlock Options", "unlockButton", 50)
+                  
+                  // let newButtonLeft = 
+                  unlockButton.onclick = () => {
+                    unlockButton.hidden = true
+                    console.log("new button clicked")
+                    let giveUpButton = addNewButtonBelow(this, "Give Up And Lose", "giveUpButton", 100)
+                    giveUpButton.onclick = () => {
+                      location.reload()
+                    }
+                    let venmoButton = addNewButtonBelow(this, "Pay $1 With <i>Venmo</i>", "venmoButton", 150)
+                    venmoButton.className = "venmoButton"
+                    venmoButton.onClick = () => {
+                      alert("imagine this like brings u to a venmo page or something")
+                    }
+                    let angryEmailButton = addNewButtonBelow(this, "Send Developers Angry Email", "angryEmailButton", 200)
+                    angryEmailButton.onclick = () => {
+                      rewriteButton(angryEmailButton, "Pay $2 With <i>Venmo</i>")
+                      angryEmailButton.className = "venmoButton"
+                    }
+                    // addNewButtonBelow(this)
+                    // addNewButtonBelow(newButton)
+                    // rewriteButton(newButtonMid, "mid new button")
+                    // let newButtonLow = addNewButtonBelow(newButtonMid)
+                    // rewriteButton(newButtonLow, "low new button")
+                    // rewriteButton(newButton, "venmo")
+                  }
+                }
+              })
+              // let button2 = document.getElementById('newButton')
+              // button.className = "buttonLocked"
+              // button.removeEventList
+            }
+          }
+        }
+      );
+      } else if (clickNumber === 11) {
+        console.log("at")
+        let numClicks = 0
+        document.body.addEventListener("click", () => {
+          console.log("clicked")
+          numClicks++
+          if (numClicks > 3) {
+            alert("pay me")
+          }
+        }, true)
+      }
+  }
+
+    document.getElementById('mainButton').onclick = runScript;
+    
+  </script>
+</body>
